@@ -11,20 +11,41 @@ class DBHelper {
 		const port = 1337; // Change this to your server port
 		return `http://localhost:${port}/restaurants`
 	}
-	
-	
-	// ==================== CUSTOM URLs ======================
+
+
+	// ==================== REVIEWS ======================
 
 	/**
 	 * Database REVIEWS URL.
 	 * Change this to restaurants.json file location on your server.
 	 */
-	static get DATABASE_URL_REVIEWS() {
+	static get DATABASE_REVIEWS_URL() {
 		const port = 1337; // Change this to your server port
-		return `http://localhost:${port}/reviews`
+		return `http://localhost:${port}/reviews/?restaurant_id=`
 	}
-	
-	// ==================== CUSTOM URLs END ======================
+
+
+	/**
+	 * Fetch all reviews.
+	 */
+	static fetchReviews(id) {
+		var reviewsURL = DBHelper.DATABASE_REVIEWS_URL + id
+
+		const displayAllReviews = jsonData => jsonData
+
+		function requestError(e) {
+			console.log(e);
+		}
+
+		return fetch(reviewsURL)
+			.then(response => response.json())
+			.then(displayAllReviews)
+			.catch(e => requestError(e))
+
+	}
+
+
+	// ==================== REVIEWS END ======================
 
 
 	/**
@@ -35,11 +56,11 @@ class DBHelper {
 			.then(response => {
 				return response.json()
 			})
-			.then(displayAllRestarurants)
+			.then(displayAllRestaurants)
 			.catch(e => requestError(e));
 
 
-		function displayAllRestarurants(jsonData) {
+		function displayAllRestaurants(jsonData) {
 			var restaurants = jsonData
 			return callback(null, restaurants)
 		}

@@ -39,33 +39,13 @@ const fetchRestaurantFromURL = (callback) => {
 				console.error(error);
 				return;
 			}
+
 			fillRestaurantHTML();
 			callback(null, restaurant)
 		});
 	}
 }
 
-/**
- * Create all reviews HTML and add them to the webpage.
- */
-const fillReviewsHTMLstage3 = (reviews = self.restaurant.reviews) => {
-	const container = document.getElementById('reviews-container');
-	const title = document.createElement('h2');
-	title.innerHTML = 'Reviews';
-	container.appendChild(title);
-
-	if (!reviews) {
-		const noReviews = document.createElement('p');
-		noReviews.innerHTML = 'No reviews yet!';
-		container.appendChild(noReviews);
-		return;
-	}
-	const ul = document.getElementById('reviews-list');
-	reviews.forEach(review => {
-		ul.appendChild(createReviewHTML(review));
-	});
-	container.appendChild(ul);
-}
 
 /**
  * Create restaurant HTML and add it to the webpage
@@ -90,10 +70,50 @@ const fillRestaurantHTML = (restaurant = self.restaurant) => {
 		fillRestaurantHoursHTML();
 	}
 	// fill reviews
-	// fillReviewsHTML();
-	fillReviewsHTMLstage3();
+	fillReviewsHTML();
+
+	// test data
+	// DBHelper.fetchReviews()
+
 }
 
+
+/**
+ * Create all reviews HTML and add them to the webpage.
+ */
+const fillReviewsHTML = () => {
+
+	var id = self.restaurant.id
+
+	
+	const container = document.getElementById('reviews-container');
+	const title = document.createElement('h2');
+	title.innerHTML = 'Reviews';
+	container.appendChild(title);
+	
+	
+	var reviews = DBHelper.fetchReviews(id)
+		.then(createList)
+	
+	
+	function createList(reviews) {
+		const ul = document.getElementById('reviews-list');
+		reviews.forEach(review => {
+			
+			// console.log('ul review name: ' + review.name);
+			ul.appendChild(createReviewHTML(review));
+		
+		})
+		container.appendChild(ul);
+	}
+	
+	if (!reviews) {
+		const noReviews = document.createElement('p');
+		noReviews.innerHTML = 'No reviews yet!';
+		container.appendChild(noReviews);
+		return;
+	}
+}
 /**
  * Create restaurant operating hours HTML table and add it to the webpage.
  */
@@ -114,31 +134,10 @@ const fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hour
 	}
 }
 
-/**
- * Create all reviews HTML and add them to the webpage.
- */
-const fillReviewsHTML = (reviews = self.restaurant.reviews) => {
-	const container = document.getElementById('reviews-container');
-	const title = document.createElement('h2');
-	title.innerHTML = 'Reviews';
-	container.appendChild(title);
-
-	if (!reviews) {
-		const noReviews = document.createElement('p');
-		noReviews.innerHTML = 'No reviews yet!';
-		container.appendChild(noReviews);
-		return;
-	}
-	const ul = document.getElementById('reviews-list');
-	reviews.forEach(review => {
-		ul.appendChild(createReviewHTML(review));
-	});
-	container.appendChild(ul);
-}
 
 /**
  * Create review HTML and add it to the webpage.
- * THIS WORKS FOR STAGE-2 SERVER DB SCHEMA ONLY
+ * 
  */
 const createReviewHTML = (review) => {
 	const li = document.createElement('li');
@@ -182,6 +181,9 @@ const getParameterByName = (name, url) => {
 	if (!url)
 		url = window.location.href;
 	name = name.replace(/[\[\]]/g, '\\$&');
+
+	console.log('getParameterByName f url is: ' + url + ' name is: ' + name);
+
 	const regex = new RegExp(`[?&]${name}(=([^&#]*)|&|#|$)`),
 		results = regex.exec(url);
 	if (!results)
@@ -190,4 +192,3 @@ const getParameterByName = (name, url) => {
 		return '';
 	return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
-
