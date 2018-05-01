@@ -19,22 +19,47 @@
 }
 
 /* body flex items*/
-.rest-header { order: 1;}
-.rest-main { order: 2;}
-.rest-footer { order: 3;}
+
+.rest-header {
+	order: 1;
+}
+
+.rest-main {
+	order: 2;
+}
+
+.rest-footer {
+	order: 3;
+}
 
 /* header flex items*/
-.rest-nav { order: 1;}
-.rest-breadcrump { order: 2;}
+
+.rest-nav {
+	order: 1;
+}
+
+.rest-breadcrump {
+	order: 2;
+}
 
 /* main flex items*/
-.rest-map { order: 1;}
-.rest-details { order: 2;}
-.rest-reviews { order: 3;}
+
+.rest-map {
+	order: 1;
+}
+
+.rest-details {
+	order: 2;
+}
+
+.rest-reviews {
+	order: 3;
+}
 
 /* ==================== MEDIA QUERIES ===========*/
 
 /* SMALL phones < 480px */
+
 @media all and (max-width: 30rem) {
 	#restaurants-list li a {
 		width: 100%;
@@ -42,6 +67,7 @@
 }
 
 /* BIG phones 480px - 768px */
+
 @media all and (min-width: 30rem) {
 	nav h1 a {
 		font-size: 2rem;
@@ -52,7 +78,8 @@
 	}
 	.filter-options,
 	.rest-details,
-	.rest-reviews {
+	.rest-reviews,
+	.rest-main {
 		max-width: 480px;
 		margin: auto;
 	}
@@ -77,21 +104,22 @@
 		max-width: 600px;
 		margin: auto;
 	}
+	.rest-main {
+		max-width: 760px;
+		margin: auto;
+	}
 }
 
 /* MEDIUM size computer screens 960px - 1200px */
 
 @media all and (min-width: 60rem) {
-
-
-	li, .container-main {
+	li,
+	.container-main {
 		max-width: 960px;
 		margin: 0 auto;
 		display: flex;
 		align-content: space-between;
-
 	}
-	
 	#restaurants-list .restaurant-img {
 		max-width: 84%;
 	}
@@ -101,32 +129,25 @@
 		flex-shrink: 1;
 		flex-basis: 0;
 	}
-
 	.align-top {
 		align-self: flex-start;
 	}
-
-
-	
-
 	.column:first-of-type {
 		flex-grow: 2;
 		flex-shrink: 2;
 		flex-basis: 0;
 	}
-
 	div.column h2 {
 		text-align: left;
 	}
-
 	/* body width */
 	.filter-options,
 	.rest-details,
-	.rest-reviews {
+	.rest-reviews,
+	.rest-main {
 		max-width: 960px;
-		margin: auto;
+		margin: 0 auto;
 	}
-
 	.container-body,
 	.container-header,
 	.container-main,
@@ -134,10 +155,10 @@
 		flex-direction: row;
 		justify-content: left;
 	}
-
 }
 
 /* LARGE computer screens > 1200px */
+
 @media all and (min-width: 75rem) {
 	li,
 	.container-main {
@@ -146,7 +167,6 @@
 		display: flex;
 	}
 }
-	
 
 /* FLEX ITEMS */
 

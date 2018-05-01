@@ -6,9 +6,6 @@ var markers = [];
 
 
 
-
-
-
 /**
  * Fetch neighborhoods and cuisines as soon as the page is loaded.
  */
@@ -221,7 +218,7 @@ const createRestaurantHTML = (restaurant) => {
 
 	// FAVORITE BUTTON
 	const favoriteMe = document.createElement('button')
-		favoriteMe.className = 'favorite-button'
+	favoriteMe.className = 'favorite-button'
 	// name the button id  just in case
 	favoriteMe.id = 'favBtn' + restaurant.id
 	//assign function to event
