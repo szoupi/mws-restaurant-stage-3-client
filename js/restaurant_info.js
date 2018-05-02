@@ -94,7 +94,7 @@ const fillReviewsHTML = () => {
 	addReviewButton.innerHTML = 'Your opinion matters! Add your comment'
 	addReviewButton.className = 'button'
 	addReviewButton.id = 'add-review-button'
-	addReviewButton.onclick = addReview
+	addReviewButton.onclick = createForm
 	container.appendChild(addReviewButton)
 
 
@@ -127,19 +127,23 @@ const fillReviewsHTML = () => {
 
 }
 
+// create form input
 const createForm = () => {
 
 	// form
 	const formContainer = document.getElementById('add-review');
 	const form = document.createElement('form')
-	form.action = 'http://localhost:1337/reviews/'
+	var currentRestaurantID = self.restaurant.id
+	var currentURL = DBHelper.DATABASE_URL + '/' + currentRestaurantID
 
-	// restaurant input
-	const restaurant_id = document.createElement('input')
-	restaurant_id.type = 'text'
-	restaurant_id.name = 'restaurant_id'
-	restaurant_id.hidden = true
-	form.append(restaurant_id)
+	// form.action = currentURL
+
+	// // restaurant input
+	// const restaurant_id = document.createElement('input')
+	// restaurant_id.type = 'text'
+	// restaurant_id.name = 'restaurant_id'
+	// restaurant_id.hidden = true
+	// form.append(restaurant_id)
 
 	// name input
 	const reviewer_label = document.createElement('label')
@@ -150,7 +154,7 @@ const createForm = () => {
 	const reviewer_name = document.createElement('input')
 	reviewer_name.type = 'text'
 	reviewer_name.name = 'reviewer_name'
-	reviewer_name.id = 'reviewer_name'
+	reviewer_name.id = 'reviewer_name_fld'
 	form.append(reviewer_name)
 
 	// rating select
@@ -161,6 +165,7 @@ const createForm = () => {
 
 	const rating = document.createElement('select')
 	rating.name = 'rating'
+	rating.id = 'rating_fld'
 	for (let index = 1; index < 6; index++) {
 
 		const option = document.createElement('option');
@@ -180,6 +185,7 @@ const createForm = () => {
 	comment_text.type = 'text'
 	comment_text.className = 'textarea'
 	comment_text.name = 'comment_text'
+	comment_text.id = 'comment_text_fld'
 	form.append(comment_text)
 
 	// submit review
@@ -188,20 +194,68 @@ const createForm = () => {
 	submitReview.id = 'submitReview'
 	submitReview.innerHTML = 'Submit Review'
 	//assign function to event
-	// submitReview.onclick = 
+	submitReview.onclick = postReview
 	form.append(submitReview)
 
 	formContainer.appendChild(form)
 
 }
 
-const addReview = () => {
-	const restID = self.restaurant.id
-	console.log('id=' + restID);
 
-	createForm()
 
+
+
+function postReview(event) {
+	event.preventDefault(); //prevent redirect
+
+		var currentRestaurantID = self.restaurant.id
+	const name = document.getElementById('reviewer_name_fld').value
+	const rating = document.getElementById('rating_fld').value
+	const comments = document.getElementById('comment_text_fld').value
+	const url = 'http://localhost:1337/reviews/'
+	
+	console.log('id=' + currentRestaurantID);
+	
+	postData(url, {
+		// id: currentRestaurantID, // is not needed because it is filtered by the url above
+		restaurant_id: currentRestaurantID,
+		name: name,
+		rating: rating,
+		comments: comments
+	}).then(data => {
+		console.log('restaurant id ' + currentRestaurantID + ' added to db'); // JSON from `response.json()` call
+		fillReviewsHTML()
+	}).catch(error => {
+		console.log(error);
+	})
+	
+	// FETCH THE DATA FROM JSON URL
+	function postData(url, data) {
+	
+		return fetch(url, {
+			method: 'POST',
+			redirect: 'follow',
+			body: JSON.stringify(data), // must match 'Content-Type' header
+			headers: {
+				'content-type': 'application/json'
+			}
+		}).then(response => {
+			response.json
+		}).catch((error) => {
+			console.log('Could not create the review, error: ' + error);
+	
+		}).then(response => console.log('Success:', response));
+	}
 }
+
+
+
+
+
+
+
+
+
 
 
 /**

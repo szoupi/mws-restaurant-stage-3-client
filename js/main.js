@@ -233,16 +233,6 @@ const createRestaurantHTML = (restaurant) => {
 	}
 	container_details.append(favoriteMe)
 
-	// // UNFAVORITE BUTTON
-	// const unFavoriteMe = document.createElement('button')
-	// unFavoriteMe.innerHTML = 'Unfavorite Me'
-	// unFavoriteMe.className = 'unfavorite-button'
-	// // name the button id  just in case
-	// unFavoriteMe.id = 'unfavBtn' + currentRestaurantID
-	// //assign function to event
-	// unFavoriteMe.onclick = MakeUNfavorite
-	// container_details.append(unFavoriteMe)
-
 	function toggleFavorite() {
 		if (favoriteMe.innerHTML == 'Favorite Me') {
 			putFavorite()
@@ -257,7 +247,7 @@ const createRestaurantHTML = (restaurant) => {
 
 
 	// FETCH THE DATA FROM JSON URL
-	function postData(url, data) {
+	function putData(url, data) {
 
 		return fetch(url, {
 			method: 'PUT', //update field
@@ -275,7 +265,7 @@ const createRestaurantHTML = (restaurant) => {
 
 	function putFavorite() {
 
-		postData(currentURL, {
+		putData(currentURL, {
 			// id: currentRestaurantID, // is not needed because it is filtered by the url above
 			// update db
 			is_favorite: true
@@ -293,7 +283,7 @@ const createRestaurantHTML = (restaurant) => {
 
 	function putUNFavorite() {
 
-		postData(DBHelper.DATABASE_URL + '/' + currentRestaurantID, {
+		putData(DBHelper.DATABASE_URL + '/' + currentRestaurantID, {
 			// id: currentRestaurantID, // is not needed because it is filtered by the url above
 			is_favorite: false // change field value to favorite
 		}).then(() => {
@@ -309,30 +299,6 @@ const createRestaurantHTML = (restaurant) => {
 
 	return li
 }
-
-
-/**
- * Favorite / unfavorite restaurants
- */
-// forEach works on arrays not objects
-// also split creates array, eg:
-// var titles = document.getElementById('titles').value.split(',');
-// https://www.sitepoint.com/deeper-dive-javascript-promises/
-
-// the following code cannot be useb, brobably because the restaurant elements have not been created yet
-// function TEST() {
-
-// 	var buttonsArray = [].slice.call(document.querySelectorAll('favorite-button'))
-
-// 	buttonsArray.forEach(button => {
-// 		button.addEventListener('click', function () {
-// 			console.log('make restaurant favorite');
-
-// 		})
-// 	});
-// }
-
-
 
 
 /**
@@ -468,13 +434,13 @@ if ('serviceWorker' in navigator) {
 	window.addEventListener('load', function () {
 		navigator.serviceWorker.register('sw-min.js')
 			.then(function (registration) {
-					// Registration was successful 
-					console.log('ServiceWorker registration successful with scope: ', registration.scope);
-				},
-				function (err) {
-					// registration failed
-					console.log('ServiceWorker registration failed: ', err);
-				});
+				// Registration was successful 
+				console.log('ServiceWorker registration successful with scope: ', registration.scope);
+			},
+			function (err) {
+				// registration failed
+				console.log('ServiceWorker registration failed: ', err);
+			});
 	});
 }
 
