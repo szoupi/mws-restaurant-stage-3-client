@@ -204,18 +204,17 @@ const createForm = () => {
 
 
 
-
 function postReview(event) {
 	event.preventDefault(); //prevent redirect
 
-		var currentRestaurantID = self.restaurant.id
+	const currentRestaurantID = self.restaurant.id
 	const name = document.getElementById('reviewer_name_fld').value
 	const rating = document.getElementById('rating_fld').value
 	const comments = document.getElementById('comment_text_fld').value
 	const url = 'http://localhost:1337/reviews/'
-	
+
 	console.log('id=' + currentRestaurantID);
-	
+
 	postData(url, {
 		// id: currentRestaurantID, // is not needed because it is filtered by the url above
 		restaurant_id: currentRestaurantID,
@@ -224,17 +223,18 @@ function postReview(event) {
 		comments: comments
 	}).then(data => {
 		console.log('restaurant id ' + currentRestaurantID + ' added to db'); // JSON from `response.json()` call
-		fillReviewsHTML()
+		
+		// fillReviewsHTML() //update content on page
+
 	}).catch(error => {
 		console.log(error);
 	})
-	
+
 	// FETCH THE DATA FROM JSON URL
 	function postData(url, data) {
-	
+
 		return fetch(url, {
 			method: 'POST',
-			redirect: 'follow',
 			body: JSON.stringify(data), // must match 'Content-Type' header
 			headers: {
 				'content-type': 'application/json'
@@ -243,16 +243,10 @@ function postReview(event) {
 			response.json
 		}).catch((error) => {
 			console.log('Could not create the review, error: ' + error);
-	
-		}).then(response => console.log('Success:', response));
+
+		}).then(response => console.log('Review created'));
 	}
 }
-
-
-
-
-
-
 
 
 
@@ -300,6 +294,38 @@ const createReviewHTML = (review) => {
 	const comments = document.createElement('p');
 	comments.innerHTML = review.comments;
 	li.appendChild(comments);
+
+
+
+	// DELETE review
+	const delReview = document.createElement('button')
+	delReview.className = 'button'
+	delReview.id = 'delReview' + review.id
+	delReview.innerHTML = 'Delete Review id:' + review.id
+	//assign function to event
+	delReview.onclick = deleteReview
+	li.append(delReview)
+
+
+	function deleteReview(event) {
+		event.preventDefault()
+
+		const url = 'http://localhost:1337/reviews/' + review.id
+
+
+		return fetch(url, {
+			method: 'DELETE',
+		}).then(response => {
+			response.json
+		}).catch((error) => {
+			console.log('Could not delete the review, error: ' + error);
+		}).then(()=>{
+			console.log('Review deleted, id: ' + review.id)
+			alert('Review deleted, id: ' + review.id)
+			
+		});
+
+	}
 
 	return li;
 }
