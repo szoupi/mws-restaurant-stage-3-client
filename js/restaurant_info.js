@@ -16,8 +16,60 @@ window.initMap = () => {
 			});
 			fillBreadcrumb();
 			DBHelper.mapMarkerForRestaurant(self.restaurant, self.map);
+
+			addCachedReviewsToServer()
+
 		}
 	});
+}
+
+
+// if there are any new Reviews saved -when offline- to idb,
+// add them to the server db and remove them from the idb
+const addCachedReviewsToServer = () => {
+	// ==========indexedDB================
+	const dbName = 'newReviewsDB'
+	const dbVersion = 10
+
+	// Create/open database
+	var request = indexedDB.open(dbName, dbVersion);
+
+	request.onerror = function (event) {
+		console.log('indexedDB error: ' + this.error);
+	};
+
+	// ============= ON SUCCESS ================
+	request.onsuccess = function (event) {
+
+		// store the result of opening the database in the db variable.
+		var db = event.target.result;
+
+		db.onerror = function (event) {
+			// Generic error handler for all errors targeted 
+			// at this database's requests!
+			console.log('Database error: ' + event.target.errorCode);
+		};
+		var transaction = db.transaction('NewReview');
+		var objectStore = transaction.objectStore('NewReview');
+
+		const reviewsList = []
+		objectStore.openCursor().onsuccess = function (event) {
+			var cursor = event.target.result;
+			if (cursor) {
+				console.log('restaurant_id for review key: ' + cursor.key + ' is ' + cursor.value.restaurant_id);
+				reviewsList.push('value: ' + cursor.value)
+				cursor.continue();
+				// TODO: POST AND DELETE DatA, USE THE POSTDATA FUNCTION
+			} else {
+				console.log('review list: ' + reviewsList);
+
+				console.log('No more entries!');
+			}
+		};
+	}
+
+
+
 }
 
 /**
@@ -136,15 +188,6 @@ const createForm = () => {
 	var currentRestaurantID = self.restaurant.id
 	var currentURL = DBHelper.DATABASE_URL + '/' + currentRestaurantID
 
-	// form.action = currentURL
-
-	// // restaurant input
-	// const restaurant_id = document.createElement('input')
-	// restaurant_id.type = 'text'
-	// restaurant_id.name = 'restaurant_id'
-	// restaurant_id.hidden = true
-	// form.append(restaurant_id)
-
 	// name input
 	const reviewer_label = document.createElement('label')
 	reviewer_label.htmlFor = 'reviewer_name'
@@ -212,42 +255,151 @@ function postReview(event) {
 	const comments = document.getElementById('comment_text_fld').value
 	const url = 'http://localhost:1337/reviews/'
 
-	console.log('id=' + currentRestaurantID);
-
-	postData(url, {
-		// id: currentRestaurantID, // is not needed because it is filtered by the url above
+	const objNewReview = {
 		restaurant_id: currentRestaurantID,
 		name: name,
 		rating: rating,
 		comments: comments
-	}).then(data => {
-		console.log('restaurant id ' + currentRestaurantID + ' added to db'); // JSON from `response.json()` call
-		
-		// fillReviewsHTML() //update content on page
-
-	}).catch(error => {
-		console.log(error);
-	})
-
-	// FETCH THE DATA FROM JSON URL
-	function postData(url, data) {
-
-		return fetch(url, {
-			method: 'POST',
-			body: JSON.stringify(data), // must match 'Content-Type' header
-			headers: {
-				'content-type': 'application/json'
-			}
-		}).then(response => {
-			response.json
-		}).catch((error) => {
-			console.log('Could not create the review, error: ' + error);
-
-		}).then(response => console.log('Review created'));
 	}
+
+	console.log('id=' + currentRestaurantID);
+
+	if (navigator.onLine) {
+		console.log('navigator is online');
+
+		postData(url, objNewReview).then(data => {
+			console.log('restaurant id ' + currentRestaurantID + ' added to db'); // JSON from `response.json()` call
+
+			// TODO: OPTIMISTIC UPDATE
+
+		}).catch(error => {
+			console.log(error);
+		})
+
+		// if navigator is not online (offline)
+	} else {
+		console.log('navigator offline. Save post request to indexeddb');
+		offlineMessage()
+		cachePostToIdb()
+
+	}
+
+	function offlineMessage() {
+		const formContainer = document.getElementById('add-review');
+		const msg = document.createElement('div')
+		// TODO: CREATE CLASS ALERT
+		msg.classname = alert
+		msg.innerHTML = 'You are offline. Your review will be saved. When you are online again it will be reposted by itself!'
+		formContainer.append(msg)
+
+	}
+
+	// SAVE CURRENT POST TO IDB IF OFFLINE
+	// REPOST WHEN ONLINE => on map activation
+	function cachePostToIdb() {
+		console.log('start saving to indexeddb');
+
+		// ==========indexedDB================
+		const dbName = 'newReviewsDB'
+		const dbVersion = 2
+
+		// Create/open database
+		var request = indexedDB.open(dbName, dbVersion);
+
+		request.onerror = function (event) {
+			console.log('indexedDB error for newReviewsDB: ' + this.error);
+		};
+
+		// ============= ON SUCCESS ================
+		request.onsuccess = function (event) {
+			console.log('Database newReviews initialised succesfully');
+
+			// store the result of opening the database in the db variable.
+			var db = event.target.result;
+
+			db.onerror = function (event) {
+				// Generic error handler for all errors targeted 
+				// at this database's requests!
+				console.log('Database newReview error: ' + event.target.errorCode);
+			};
+
+			// open a read/write db transaction, ready for adding the data
+			var transaction = db.transaction(['NewReview'], 'readwrite');
+
+			// call an object store that's already been added to the database
+			var objectStore = transaction.objectStore('NewReview');
+
+			objectStore.put(objNewReview);
+
+			// report on the success of the transaction completing, when everything is done
+			transaction.oncomplete = function () {
+				console.log('Transaction completed: database modification finished');
+			};
+
+			transaction.onerror = function () {
+				console.log('Transaction not opened due to error: ' + transaction.error);
+			};
+
+
+			console.log('REPORT ///////////////////////////////');
+			console.log('objectStore indexNames: ' + objectStore.indexNames);
+			console.log('objectStore keyPath: ' + objectStore.keyPath);
+			console.log('objectStore name: ' + objectStore.name);
+			console.log('objectStore transaction: ' + objectStore.transaction);
+			console.log('objectStore autoIncrement: ' + objectStore.autoIncrement);
+			console.log('///////////////////////////////');
+		};
+
+
+		// ============= ON UPGRADE (DB SCHEMA) ================
+		request.onupgradeneeded = function (event) {
+			console.log('onupgradeneeded request triggered: ' + event);
+
+			var db = event.target.result;
+
+			db.onerror = function (event) {
+				console.log('Error loading database');
+			};
+
+			db.onversionchange = function (event) {
+				console.log('version changed, user should be informed');
+
+			};
+
+			// Create an objectStore for this database
+			var objectStore = db.createObjectStore('NewReview', {
+				keyPath: 'name'
+				// autoIncrement: true
+			});
+
+			console.log('onupgradeneeded event triggered, object store restaurants created');
+
+		};
+
+
+		// ==========indexedDB END================		
+	}
+
+
 }
 
 
+// FETCH THE DATA FROM JSON URL
+function postData(url, data) {
+
+	return fetch(url, {
+		method: 'POST',
+		body: JSON.stringify(data), // must match 'Content-Type' header
+		headers: {
+			'content-type': 'application/json'
+		}
+	}).then(response => {
+		response.json
+	}).catch((error) => {
+		console.log('Could not create the review, error: ' + error);
+
+	}).then(response => console.log('Review created'));
+}
 
 
 
@@ -318,10 +470,10 @@ const createReviewHTML = (review) => {
 			response.json
 		}).catch((error) => {
 			console.log('Could not delete the review, error: ' + error);
-		}).then(()=>{
+		}).then(() => {
 			console.log('Review deleted, id: ' + review.id)
 			alert('Review deleted, id: ' + review.id)
-			
+
 		});
 
 	}

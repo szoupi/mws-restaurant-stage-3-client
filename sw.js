@@ -78,7 +78,10 @@ self.addEventListener('fetch', function (event) {
 		return;
 	}
 	////////// end of only-if-cached fix
-	
+
+
+
+
 
 	event.respondWith(
 		caches.match(event.request)
@@ -90,7 +93,7 @@ self.addEventListener('fetch', function (event) {
 
 					// ==========indexedDB================
 					const dbName = 'restaurantDB'
-					const dbVersion = 8
+					const dbVersion = 10
 
 					// Create/open database
 					var request = indexedDB.open(dbName, dbVersion);
