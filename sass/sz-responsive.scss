@@ -61,8 +61,10 @@
 /* SMALL phones < 480px */
 
 @media all and (max-width: 30rem) {
+	.button,
 	#restaurants-list li a {
 		width: 100%;
+		margin: 0.5rem 0;
 	}
 }
 
@@ -73,6 +75,7 @@
 		font-size: 2rem;
 	}
 	/* INDEX PAGE ==================== */
+	.button,
 	#restaurants-list li a {
 		padding: 12px 24px 12px;
 	}
@@ -93,6 +96,10 @@
 	#restaurant-name {
 		font-size: 2rem;
 	}
+	.button,
+	#restaurants-list li a {
+		margin: 0.5rem;
+	}
 }
 
 /* TABLETS 768px - 960px */
@@ -107,6 +114,10 @@
 	.rest-main {
 		max-width: 760px;
 		margin: auto;
+	}
+	.button,
+	#restaurants-list li a {
+		margin: 0.5rem;
 	}
 }
 
@@ -165,6 +176,9 @@
 		max-width: 1200px;
 		margin: 0 auto;
 		display: flex;
+	}
+	.button {
+		margin: 0.5rem;
 	}
 }
 

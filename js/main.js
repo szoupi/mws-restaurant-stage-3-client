@@ -211,19 +211,23 @@ const createRestaurantHTML = (restaurant) => {
 	restaurantID.innerHTML = 'ID: ' + restaurant.id
 	container_details.append(restaurantID)
 
-	const more = document.createElement('a');
-	more.innerHTML = 'View Details';
-	more.href = DBHelper.urlForRestaurant(restaurant);
-	container_details.append(more)
-
+	
 	// FAVORITE BUTTON
 	const favoriteMe = document.createElement('button')
-	favoriteMe.className = 'favorite-button'
+	favoriteMe.className = 'button'
 	// name the button id  just in case
 	favoriteMe.id = 'favBtn' + restaurant.id
 	//assign function to event
 	favoriteMe.onclick = toggleFavorite
+	
+	// VIEW DETAILS
+	const more = document.createElement('a');
+	more.className='button'
+	more.innerHTML = 'View Details';
+	more.href = DBHelper.urlForRestaurant(restaurant);
+	container_details.append(more)
 
+	// toggle favorite
 	if (restaurant.is_favorite == true) {
 		favoriteMe.innerHTML = 'Unfavor'
 		console.log('restaurant.is_favorite=true');
