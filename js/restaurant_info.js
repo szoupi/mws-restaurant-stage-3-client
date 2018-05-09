@@ -27,9 +27,10 @@ window.initMap = () => {
 // if there are any new Reviews saved -when offline- to idb,
 // add them to the server db and remove them from the idb
 const addCachedReviewsToServer = () => {
+
 	// ==========indexedDB================
 	const dbName = 'newReviewsDB'
-	const dbVersion = 10
+	const dbVersion = 12
 
 	// Create/open database
 	var request = indexedDB.open(dbName, dbVersion);
@@ -37,6 +38,35 @@ const addCachedReviewsToServer = () => {
 	request.onerror = function (event) {
 		console.log('indexedDB error: ' + this.error);
 	};
+
+
+	// ============= ON UPGRADE (DB SCHEMA) ================
+	request.onupgradeneeded = function (event) {
+		console.log('onupgradeneeded request triggered: ' + event);
+
+		var db = event.target.result;
+
+		db.onerror = function (event) {
+			console.log('Error loading database');
+		};
+
+		db.onversionchange = function (event) {
+			console.log('version changed, user should be informed, db:' + dbName);
+
+		};
+
+
+		// Create an objectStore for this database
+		var objectStore = db.createObjectStore('NewReview', {
+			keyPath: 'name'
+			// autoIncrement: true
+		});
+
+		console.log('onupgradeneeded event triggered, object store restaurants created');
+
+	};
+
+
 
 	// ============= ON SUCCESS ================
 	request.onsuccess = function (event) {
@@ -49,21 +79,50 @@ const addCachedReviewsToServer = () => {
 			// at this database's requests!
 			console.log('Database error: ' + event.target.errorCode);
 		};
-		var transaction = db.transaction('NewReview');
+
+
+
+		var transaction = db.transaction('NewReview', 'readwrite');
 		var objectStore = transaction.objectStore('NewReview');
 
-		const reviewsList = []
 		objectStore.openCursor().onsuccess = function (event) {
 			var cursor = event.target.result;
 			if (cursor) {
 				console.log('restaurant_id for review key: ' + cursor.key + ' is ' + cursor.value.restaurant_id);
-				reviewsList.push('value: ' + cursor.value)
-				cursor.continue();
-				// TODO: POST AND DELETE DatA, USE THE POSTDATA FUNCTION
-			} else {
-				console.log('review list: ' + reviewsList);
+				// reviewsList.push('value: ' + cursor.value)
 
-				console.log('No more entries!');
+				// fetch each review from idb and post it 
+				const currentRestaurantID = cursor.value.restaurant_id
+				const name = cursor.value.name
+				const rating = cursor.value.rating
+				const comments = cursor.value.comments
+				const url = 'http://localhost:1337/reviews/'
+
+				const objNewReview = {
+					restaurant_id: currentRestaurantID,
+					name: name,
+					rating: rating,
+					comments: comments
+				}
+
+				postData(url, objNewReview).then(data => {
+					console.log('restaurant id ' + currentRestaurantID + ' added to db from idb'); // JSON from `response.json()` call
+
+				}).catch(error => {
+					console.log(error);
+				})
+
+				// delete idb row
+				var objectStoreRequest = objectStore.delete(cursor.key);
+				objectStoreRequest.onsuccess = function (event) {
+					console.log('entry deleted, key: ' + cursor.key);
+					// TODO: ADD MESSAGE
+				}
+
+
+				cursor.continue();
+			} else {
+				console.log('No more entries from idb to post!');
 			}
 		};
 	}
@@ -301,7 +360,7 @@ function postReview(event) {
 
 		// ==========indexedDB================
 		const dbName = 'newReviewsDB'
-		const dbVersion = 2
+		const dbVersion = 12
 
 		// Create/open database
 		var request = indexedDB.open(dbName, dbVersion);
