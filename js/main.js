@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 	updateRestaurants()
 	fetchNeighborhoods();
 	fetchCuisines();
+	lazyLoadMap()
 });
 
 /**
@@ -388,7 +389,7 @@ function initializeMap() {
 function lazyLoadMap() {
 	console.log('starting lazy load');
 
-	var lazyMap = [].slice.call(document.querySelectorAll('div#map'))
+	var lazyMap = [].slice.call(document.querySelectorAll('#footer'))
 
 	if ('IntersectionObserver' in window) {
 		console.log('IntersectionObserver activated for load map');
