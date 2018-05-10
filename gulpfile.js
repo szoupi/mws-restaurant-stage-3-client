@@ -11,6 +11,8 @@ const webp = require('gulp-webp');
 var concat = require('gulp-concat')
 var sourcemaps = require('gulp-sourcemaps') // maps to original files
 var compressor = require('node-minify');
+var gzip = require('gulp-gzip');
+
 // var inlineCss = require('inline-css');
 
 
@@ -45,6 +47,12 @@ var paths = {
 		src: './js/**/*.js',
 		dest: './dist/js/'
 	}
+	// gzip: {
+	// 	src: 'js/**/*.{html,xml,json,css,js}',
+	// 	dest: './js/'
+	// 	options: {}
+	// },
+
 }
 
 /*
@@ -239,11 +247,13 @@ function concatJS() {
 	// index.html js 
 	var indexJS = gulp.src(['./js/dbhelper-min.js', './js/main-min.js'])
 		.pipe(concat('allMain.min.js'))
+		// .pipe(gzip())
 		.pipe(gulp.dest('./js'));
 
 	// restaurant.html js 
 	var restaurantJS = gulp.src(['./js/dbhelper-min.js', './js/restaurant_info-min.js'])
 		.pipe(concat('allRestaurant.min.js'))
+		// .pipe(gzip())
 		.pipe(gulp.dest('./js'));
 
 	return indexJS, restaurantJS

@@ -1,5 +1,12 @@
+importScripts('https://storage.googleapis.com/workbox-cdn/releases/3.2.0/workbox-sw.js');
+
+if (workbox) {
+	console.log(`Yay! Workbox is loaded 🎉`);
+} else {
+	console.log(`Boo! Workbox didn't load 😬`);
+}
 var dataUrl = 'http://localhost:1337/restaurants'
-var CACHE_NAME = 'cache-v4';
+var CACHE_NAME = 'cache-v5';
 var urlsToCache = [
 	'/',
 	'.',
@@ -12,6 +19,7 @@ var urlsToCache = [
 	'img/7.jpg',
 	'img/8.jpg',
 	'img/9.jpg',
+	'img/10.jpg',
 	'img/1-128w.jpg',
 	'img/2-128w.jpg',
 	'img/3-128w.jpg',
@@ -21,6 +29,7 @@ var urlsToCache = [
 	'img/7-128w.jpg',
 	'img/8-128w.jpg',
 	'img/9-128w.jpg',
+	'img/10-128w.jpg',
 	'img/1-400w.jpg',
 	'img/2-400w.jpg',
 	'img/3-400w.jpg',
@@ -30,6 +39,7 @@ var urlsToCache = [
 	'img/7-400w.jpg',
 	'img/8-400w.jpg',
 	'img/9-400w.jpg',
+	'img/10-400w.jpg',
 	'img/1-500w.jpg',
 	'img/2-500w.jpg',
 	'img/3-500w.jpg',
@@ -39,6 +49,7 @@ var urlsToCache = [
 	'img/7-500w.jpg',
 	'img/8-500w.jpg',
 	'img/9-500w.jpg',
+	'img/10-500w.jpg',
 	'img/1.webp',
 	'img/2.webp',
 	'img/3.webp',
@@ -48,6 +59,7 @@ var urlsToCache = [
 	'img/7.webp',
 	'img/8.webp',
 	'img/9.webp',
+	'img/10.webp',
 	'index.html',
 	'restaurant.html',
 	'css/allStyles.css',
@@ -60,16 +72,65 @@ var urlsToCache = [
 ];
 
 
-self.addEventListener('install', function (event) {
-	// Perform install steps
-	event.waitUntil(
-		caches.open(CACHE_NAME)
-			.then(function (cache) {
-				console.log('Opened cache');
-				return cache.addAll(urlsToCache);
+// workbox.routing.registerRoute(
+// 	new RegExp('.*\.js'),
+// 	workbox.strategies.networkFirst()
+// );
+
+
+
+// Cache JS/CSS files
+workbox.routing.registerRoute(
+	/\.(?:js|css)$/,
+	// Use cache but update in the background ASAP
+	workbox.strategies.staleWhileRevalidate({
+		// Use a custom cache name
+		cacheName: 'static-resources',
+	}),
+);
+
+workbox.routing.registerRoute(
+	// Cache image files
+	/.*\.(?:png|jpg|jpeg|svg|gif|webp)/,
+	// Use the cache if it's available
+	workbox.strategies.cacheFirst({
+		// Use a custom cache name
+		cacheName: 'image-cache',
+		plugins: [
+			new workbox.expiration.Plugin({
+				// Cache only 60 images
+				maxEntries: 80,
+				// Cache for a maximum of a week
+				maxAgeSeconds: 7 * 24 * 60 * 60,
 			})
-	);
-});
+		],
+	})
+);
+
+
+workbox.routing.registerRoute(
+	new RegExp('https://fonts.(?:googleapis|gstatic).com/(.*)'),
+	workbox.strategies.cacheFirst({
+		cacheName: 'googleapis',
+		plugins: [
+			new workbox.expiration.Plugin({
+				maxEntries: 10,
+			}),
+		],
+	}),
+);
+
+
+// self.addEventListener('install', function (event) {
+// 	// Perform install steps
+// 	event.waitUntil(
+// 		caches.open(CACHE_NAME)
+// 			.then(function (cache) {
+// 				console.log('Opened cache');
+// 				return cache.addAll(urlsToCache);
+// 			})
+// 	);
+// });
 
 
 self.addEventListener('fetch', function (event) {

@@ -180,7 +180,7 @@ const createRestaurantHTML = (restaurant) => {
 	const image = document.createElement('img');
 	image.className = 'lazy restaurant-img';
 	image.alt = 'image of ' + restaurant.name + ' restaurant';
-	image.src = 'img/image-placeholder.png'; //lazy load image
+	image.src = 'img/image-placeholder.webp'; //lazy load image
 	image.dataset.src = DBHelper.imageUrlForRestaurant(restaurant) + '.webp';
 	picture.append(image);
 
@@ -420,24 +420,24 @@ function lazyLoadMap() {
 }
 
 // ================= TEST BUTTONS =====================
-document.getElementById('loadMap').addEventListener('click', function () {
-	console.log('button load map clicked');
-	// updateRestaurants()
-	initializeMap()
-})
+// document.getElementById('loadMap').addEventListener('click', function () {
+// 	console.log('button load map clicked');
+// 	// updateRestaurants()
+// 	initializeMap()
+// })
 
 
-document.getElementById('updateRest').addEventListener('click', function () {
-	updateRestaurants()
+// document.getElementById('updateRest').addEventListener('click', function () {
+// 	updateRestaurants()
 
-})
+// })
 
 
 // ============= service worker ===========
 if ('serviceWorker' in navigator) {
 	window.addEventListener('load', function () {
-		// navigator.serviceWorker.register('sw-min.js')
-		navigator.serviceWorker.register('sw.js')
+		navigator.serviceWorker.register('sw-min.js')
+		// navigator.serviceWorker.register('sw.js')
 			.then(function (registration) {
 				// Registration was successful 
 				console.log('ServiceWorker registration successful with scope: ', registration.scope);

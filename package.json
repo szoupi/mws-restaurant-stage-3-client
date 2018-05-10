@@ -25,6 +25,7 @@
     "gulp-autoprefixer": "^5.0.0",
     "gulp-clean-dest": "^0.2.0",
     "gulp-concat": "^2.6.1",
+    "gulp-gzip": "^1.2.0",
     "gulp-jscs": "^4.1.0",
     "gulp-minify": "^2.1.0",
     "gulp-rename": "^1.2.2",
